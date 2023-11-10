@@ -17,12 +17,13 @@ tool_path="${tool_path%/}"
 output_path="${output_path%/}"
 proteome_path="${proteome_path%/}"
 
+cd ${tool_path}/EffHunter_v.1.0/
 # predict SSPs
 for sample in $sample[@]; do 
     name=$(echo "$sample")
     mkdir -p ${output_path}/${name}
-    ./${tool_path}/EffHunter_v.1.0/EffHunter.sh 30 400 ${proteome_path}/${name}. 2
-    mv ${tool_path}/EffHunter_v.1.0/EffectorHunter/effectors.fasta ${output_path}/${name}/${name}_SSP.fasta
+    ./EffHunter.sh 30 400 ${proteome_path}/${name}. 2
+    mv EffectorHunter/effectors.fasta ${output_path}/${name}/${name}_SSP.fasta
 done 
 
 # predict effectors
