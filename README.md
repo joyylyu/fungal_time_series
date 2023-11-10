@@ -1,1 +1,1 @@
-# fungal_time_series
+# Fungal time series
