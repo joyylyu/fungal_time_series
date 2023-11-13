@@ -1,11 +1,7 @@
 #!/bin/bash
 
 # run EffHunter and EffectorP sequentially to predict SSP and effectors from SSP
-# *the EffHunter workflow was slightly modified to enable looping over samples
-
-# load modules
-module load BioPerl/1.7.8-GCCcore-11.3.0
-module load Biopython/1.79-foss-2022a
+# the EffHunter workflow was slightly modified to enable looping over samples
 
 # get path from config file
 tool_path=$(jq -r '.tool_path' config.json)
@@ -22,7 +18,7 @@ cd ${tool_path}/EffHunter_v.1.0/
 for sample in $sample[@]; do 
     name=$(echo "$sample")
     mkdir -p ${output_path}/${name}
-    ./EffHunter.sh 30 400 ${proteome_path}/${name}. 2
+    ./EffHunter.sh 30 400 ${proteome_path}/${name}.proteins.fa 2
     mv EffectorHunter/effectors.fasta ${output_path}/${name}/${name}_SSP.fasta
 done 
 
