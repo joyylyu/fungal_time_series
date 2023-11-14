@@ -5,6 +5,13 @@ If jq is not installed, install jq by:
 conda install -c conda-forge jq
 ```
 
+Install signalP6.0 by:
+```
+pip3 install -U pybiolib
+#biolib run DTU/SignalP_6 --help
+```
+
+
 Before running the scripts its required to load the following modules:
 ```
 module load BioPerl/1.7.8-GCCcore-11.3.0

@@ -10,8 +10,7 @@ tool_path="${tool_path%/}"
 output_path="${output_path%/}"
 proteome_path="${proteome_path%/}"
 
-echo ${proteom_path}
-for sample in $sample[@]; do 
-    name=$(echo "$sample")
+echo "$proteome_path"
+for sample in "${sample[@]}"; do 
     echo $name
 done 

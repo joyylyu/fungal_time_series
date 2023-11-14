@@ -1,8 +1,17 @@
 {
     "samples":
     [
-        "fcul336336",
-        "fcul250250"
+        "flat126338",
+        "flat172217",
+        "flat250545",
+        "flat300533",
+        "flat301104",
+        "flat317237",
+        "flat332722",
+        "flat353158",
+        "flat356570",
+        "flat362216",
+        "flat380165"
     ],
 
     "proteome_path":"/data/zool-barralab/lina3034/fungi/funannotate/orthofinder/flat",

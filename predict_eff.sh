@@ -8,22 +8,25 @@ tool_path=$(jq -r '.tool_path' config.json)
 proteome_path=$(jq -r '.proteome_path' config.json)
 output_path=$(jq -r '.output_path' config.json)
 sample=($(jq -r '.samples[]' config.json))
-
-tool_path="${tool_path%/}"
-output_path="${output_path%/}"
-proteome_path="${proteome_path%/}"
+species=$(jq -r '.species' config.json)
+sample_no=("${sample[@]//[^0-9]/}")
 
 cd "${tool_path}/EffHunter_v.1.0/"
 
+
 # predict SSPs
-for name in "${sample[@]}"; do 
-   mkdir -p "${output_path}/${name}"
-   ./EffHunter.sh 30 400 "${proteome_path}/${name}.proteins.fa" 2 && \
-   mv EffectorHunter/effectors.fasta "${output_path}/${name}/${name}_SSP.fasta"
+for name in "${sample_no[@]}"; do 
+   mkdir -p "${output_path}/${species}/${name}"
+   biolib run DTU/SignalP_6 --fastafile "${proteome_path}/fusarium_lateritium_${name}.proteins.fa" \
+                            --output_dir "${output_path}/${species}/${name}"
 done 
 
+secreted_pro=($(awk '!/^#/ {print $1}' "${output_path}/${species}/${name}/biolib_results/output.gff3"))
+secreted_seq=($(grep -Fwf <(printf "%s\n" "${secreted_pro[@]}") -A 1 "${proteome_path}/fusarium_lateritium_${name}.proteins.fa"))
+secreted_sample=($(grep '>' "$secreted_seq[@]"))
+
 # predict effectors
-for name in "${sample[@]}"; do
+for name in "${secreted_sample[@]}"; do
     python ${tool_path}/EffectorP-3.0/EffectorP.py \
     -f -i "${output_path}/${name}/${name}_SSP.fasta" \
     -o "${output_path}/${name}/${name}_EFF.txt" \
