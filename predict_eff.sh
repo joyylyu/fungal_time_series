@@ -11,18 +11,15 @@ sample=($(jq -r '.samples[]' config.json))
 species=$(jq -r '.species' config.json)
 sample_no=("${sample[@]//[^0-9]/}")
 
-cd "${tool_path}/EffHunter_v.1.0/"
-
-
 # predict SSPs
 for name in "${sample_no[@]}"; do 
    mkdir -p "${output_path}/${species}/${name}"
-   biolib run DTU/SignalP_6 --fastafile "${proteome_path}/fusarium_lateritium_${name}.proteins.fa" \
+   biolib run DTU/SignalP_6 --fastafile "${proteome_path}/fusarium_lateritium_${sample_no}.proteins.fa" \
                             --output_dir "${output_path}/${species}/${name}"
 done 
 
 secreted_pro=($(awk '!/^#/ {print $1}' "${output_path}/${species}/${name}/biolib_results/output.gff3"))
-secreted_seq=($(grep -Fwf <(printf "%s\n" "${secreted_pro[@]}") -A 1 "${proteome_path}/fusarium_lateritium_${name}.proteins.fa"))
+se creted_seq=($(grep -Fwf <(printf "%s\n" "${secreted_pro[@]}") -A 1 "${proteome_path}/fusarium_lateritium_${name}.proteins.fa"))
 secreted_sample=($(grep '>' "$secreted_seq[@]"))
 
 # predict effectors
