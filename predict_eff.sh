@@ -1,7 +1,13 @@
 #!/bin/bash
 
 # run EffHunter and EffectorP sequentially to predict SSP and effectors from SSP
-# the EffHunter workflow was slightly modified to enable looping over samples
+# the original EffHunter workflow was slightly modified to enable looping over samples
+
+#SBATCH --job-name=predict_effectors
+#SBATCH --time=1-12:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=8
+#SBATCH --mem=8g
 
 # get path from config file
 tool_path=$(jq -r '.tool_path' config.json)
@@ -13,9 +19,9 @@ sample_no=("${sample[@]//[^0-9]/}")
 
 # predict SSPs
 for name in "${sample_no[@]}"; do 
-   mkdir -p "${output_path}/${species}/${name}"
+ #  mkdir -p "${output_path}/${species}/${sample}"
    biolib run DTU/SignalP_6 --fastafile "${proteome_path}/fusarium_lateritium_${name}.proteins.fa" \
-                            --output_dir "${output_path}/${species}/${name}"
+                            --output_dir "${output_path}/${species}/${sample}"
     secreted_pro=($(awk '!/^#/ {print $1}' "${output_path}/${species}/${name}/biolib_results/output.gff3"))
     grep -Fwf <(printf "%s\n" "${secreted_pro[@]}") -A 1 "${proteome_path}/fusarium_lateritium_${name}.proteins.fa" > "${output_path}/${name}/${name}_SSP.fasta"
 
