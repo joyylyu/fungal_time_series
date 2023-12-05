@@ -15,15 +15,16 @@ proteome_path=$(jq -r '.proteome_path' config.json)
 output_path=$(jq -r '.output_path' config.json)
 sample=($(jq -r '.samples[]' config.json))
 species=$(jq -r '.species[]' config.json)
+full_sp_name=$(jq -r '.full_species_name[]' config.json)
 sample_no=("${sample[@]//[^0-9]/}")
 
 # predict SSPs
 for name in "${sample_no[@]}"; do 
- #  mkdir -p "${output_path}/${species}/${sample}"
-   biolib run DTU/SignalP_6 --fastafile "${proteome_path}/fusarium_lateritium_${name}.proteins.fa" \
+   mkdir -p "${output_path}/${species}/${sample}"
+   biolib run DTU/SignalP_6 --fastafile "${proteome_path}/${full_sp_name}_${name}.proteins.fa" \
                             --output_dir "${output_path}/${species}/${sample}"
-    secreted_pro=($(awk '!/^#/ {print $1}' "${output_path}/${species}/${name}/biolib_results/output.gff3"))
-    grep -Fwf <(printf "%s\n" "${secreted_pro[@]}") -A 1 "${proteome_path}/fusarium_lateritium_${name}.proteins.fa" > "${output_path}/${name}/${name}_SSP.fasta"
+    secreted_pro=($(awk '!/^#/ {print $1}' "${output_path}/${species}/${sample}/biolib_results/output.gff3"))
+    grep -Fwf <(printf "%s\n" "${secreted_pro[@]}") -A 1 "${proteome_path}/${full_sp_name}_${name}.proteins.fa" > "${output_path}/${name}/${name}_SSP.fasta"
 
 done 
 

@@ -3,7 +3,10 @@
     [
         "flat"
     ],
-
+    "full_species_name":
+    [
+        "fusarium_lateritium"
+    ],
     "samples":
     [
         "flat126338",
