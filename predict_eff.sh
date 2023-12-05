@@ -8,7 +8,7 @@ tool_path=$(jq -r '.tool_path' config.json)
 proteome_path=$(jq -r '.proteome_path' config.json)
 output_path=$(jq -r '.output_path' config.json)
 sample=($(jq -r '.samples[]' config.json))
-species=$(jq -r '.species' config.json)
+species=$(jq -r '.species[]' config.json)
 sample_no=("${sample[@]//[^0-9]/}")
 
 # predict SSPs
