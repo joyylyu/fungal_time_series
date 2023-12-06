@@ -21,8 +21,10 @@ sample_no=("${sample[@]//[^0-9]/}")
 # predict SSPs
 for name in "${sample_no[@]}"; do 
    mkdir -p "${output_path}/${species}/${sample}"
-   biolib run DTU/SignalP_6 --fastafile "${proteome_path}/${full_sp_name}_${name}.proteins.fa" \
-                            --output_dir "${output_path}/${species}/${sample}"
+   signalp6 --fastafile "${proteome_path}/${full_sp_name}_${name}.proteins.fa" \
+           --output_dir "${output_path}/${species}/${sample}"  \
+           --model_dir "${tool_path}/signalp-6-package/models/}" \ 
+           --format none 
     secreted_pro=($(awk '!/^#/ {print $1}' "${output_path}/${species}/${sample}/biolib_results/output.gff3"))
     grep -Fwf <(printf "%s\n" "${secreted_pro[@]}") -A 1 "${proteome_path}/${full_sp_name}_${name}.proteins.fa" > "${output_path}/${name}/${name}_SSP.fasta"
 
