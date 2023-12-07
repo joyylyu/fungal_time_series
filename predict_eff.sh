@@ -20,24 +20,24 @@ sample_no=("${sample[@]//[^0-9]/}")
 proteome=$(echo "${proteome_path}/${full_sp_name}_${sample_no}.proteins.fa")
 
 # predict SSPs
-for name in "${sample_no[@]}"; do 
-    output_gff="${output_path}/${species}/${sample}/SignalP6/output.gff3"
+for name in "${sample[@]}"; do 
+    output_gff="${output_path}/${species}/${name}/SignalP6/output.gff3"
     
     # Check if output.gff3 file exists
     if [ ! -e "$output_gff" ]; then
-        mkdir -p "${output_path}/${species}/${sample}"
-        mkdir -p "${output_path}/${species}/${sample}/SignalP6"
+        mkdir -p "${output_path}/${species}/${name}"
+        mkdir -p "${output_path}/${species}/${name}/SignalP6"
         
         signalp6 --fastafile "$proteome" \
-                 --output_dir "${output_path}/${species}/${sample}/SignalP6"  \
+                 --output_dir "${output_path}/${species}/${name}/SignalP6"  \
                  --model_dir "${tool_path}/signalp-6-package/models" \
                  --format none 
         
-        secreted_pro=$(awk '!/^#/ {print $1}' "${output_path}/${species}/${sample}/SignalP6/output.gff3")
+        secreted_pro=$(awk '!/^#/ {print $1}' "${output_path}/${species}/${name}/SignalP6/output.gff3")
         
-        grep -Fwf <(printf "%s\n" "${secreted_pro[@]}") -A 1 "$proteome" > "${output_path}/${species}/${sample}/SignalP6/${sample}_SSP.fasta"
+        grep -Fwf <(printf "%s\n" "${secreted_pro[@]}") -A 1 "$proteome" > "${output_path}/${species}/${name}/SignalP6/${name}_SSP.fasta"
         
-        sed -i 's/--//g' "${output_path}/${species}/${sample}/SignalP6/${sample}_SSP.fasta" 
+        sed -i 's/--//g' "${output_path}/${species}/${name}/SignalP6/${name}_SSP.fasta" 
     else
         echo "Output file $output_gff exists. Skipping SignalP command."
     fi
@@ -45,29 +45,29 @@ done
 
 
 #predict transmembrane domain
-for name in "${sample_no[@]}"; do
-    mkdir -p "${output_path}/${species}/${sample}/TMHMM"
+for name in "${sample[@]}"; do
+    mkdir -p "${output_path}/${species}/${name}/TMHMM"
     
-    cat ${output_path}/${species}/${sample}/SignalP6/${sample}_SSP.fasta  | \
+    cat ${output_path}/${species}/${name}/SignalP6/${name}_SSP.fasta  | \
     ${tool_path}/tmhmm/decodeanhmm.Linux_x86_64 -f ${tool_path}/tmhmm/TMHMM2.0.options \
-    -modelfile ${tool_path}/tmhmm/TMHMM2.0c.model > ${output_path}/${species}/${sample}/TMHMM/tmhmm.gff3
+    -modelfile ${tool_path}/tmhmm/TMHMM2.0c.model > ${output_path}/${species}/${name}/TMHMM/tmhmm.gff3
     
     perl ${tool_path}/tmhmm/tmhmmformat.pl \
-    ${output_path}/${species}/${sample}/TMHMM/tmhmm.gff3 > ${output_path}/${species}/${sample}/TMHMM/res.gff3
+    ${output_path}/${species}/${name}/TMHMM/tmhmm.gff3 > ${output_path}/${species}/${name}/TMHMM/res.gff3
     
-    grep -E "Number of predicted TMHs:  0" ${output_path}/${species}/${sample}/TMHMM/res.gff3| sed 's/# />/g' > ${output_path}/${species}/${sample}/TMHMM/IDtmhmm.txt
+    grep -E "Number of predicted TMHs:  0" ${output_path}/${species}/${name}/TMHMM/res.gff3| sed 's/# />/g' > ${output_path}/${species}/${name}/TMHMM/IDtmhmm.txt
     
-    cut -d ' ' -f1 ${output_path}/${species}/${sample}/TMHMM/IDtmhmm.txt > ${output_path}/${species}/${sample}/TMHMM/id.wotransmembrandomains.fastaxs
+    cut -d ' ' -f1 ${output_path}/${species}/${name}/TMHMM/IDtmhmm.txt > ${output_path}/${species}/${name}/TMHMM/id.wotransmembrandomains.fastaxs
     
-    grep -Fwf ${output_path}/${species}/${sample}/TMHMM/id.wotransmembrandomains.fastaxs -A 1 "${output_path}/${species}/${sample}/SignalP6/${sample}_SSP.fasta" > "${output_path}/${species}/${sample}/TMHMM/${sample}_NOTM.fasta"
+    grep -Fwf ${output_path}/${species}/${name}/TMHMM/id.wotransmembrandomains.fastaxs -A 1 "${output_path}/${species}/${name}/SignalP6/${name}_SSP.fasta" > "${output_path}/${species}/${name}/TMHMM/${name}_NOTM.fasta"
 done
 
 
 # predict effectors
-for name in "${secreted_sample[@]}"; do
+for name in "${sample[@]}"; do
     python ${tool_path}/EffectorP-3.0/EffectorP.py \
-    -f -i "${output_path}/${species}/${sample}/TMHMM/${sample}_NOTM.fasta" \
-    -o "${output_path}/${species}/${sample}/${sample}_EFF.txt" \
-    -E "${output_path}/${species}/${sample}/${sample}_EFF.fasta"
+    -f -i "${output_path}/${species}/${name}/TMHMM/${name}_NOTM.fasta" \
+    -o "${output_path}/${species}/${name}/${name}_EFF.txt" \
+    -E "${output_path}/${species}/${name}/${name}_EFF.fasta"
 done 
 
