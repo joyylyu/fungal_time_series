@@ -21,27 +21,44 @@ proteome=$(echo "${proteome_path}/${full_sp_name}_${sample_no}.proteins.fa")
 
 # predict SSPs
 for name in "${sample_no[@]}"; do 
-   mkdir -p "${output_path}/${species}/${sample}"
-   mkdir -p "${output_path}/${species}/${sample}/SignalP6"
-   signalp6 --fastafile $proteome \
-           --output_dir "${output_path}/${species}/${sample}/SignalP6"  \
-           --model_dir "${tool_path}/signalp-6-package/models" \
-           --format none 
-    secreted_pro={$(awk '!/^#/ {print $1}' "${output_path}/${species}/${sample}/SignalP6/"output.gff3)}
-    grep -Fwf <(printf "%s\n" "${secreted_pro[@]}") -A 1 "${proteome}" > "${output_path}/${species}/${sample}/SignalP6/${sample}_SSP.fasta"
-    sed -i 's/--//g' "${output_path}/${species}/${sample}/SignalP6/${sample}_SSP.fasta" 
-done 
+    output_gff="${output_path}/${species}/${sample}/SignalP6/output.gff3"
+    
+    # Check if output.gff3 file exists
+    if [ ! -e "$output_gff" ]; then
+        mkdir -p "${output_path}/${species}/${sample}"
+        mkdir -p "${output_path}/${species}/${sample}/SignalP6"
+        
+        signalp6 --fastafile "$proteome" \
+                 --output_dir "${output_path}/${species}/${sample}/SignalP6"  \
+                 --model_dir "${tool_path}/signalp-6-package/models" \
+                 --format none 
+        
+        secreted_pro=$(awk '!/^#/ {print $1}' "${output_path}/${species}/${sample}/SignalP6/output.gff3")
+        
+        grep -Fwf <(printf "%s\n" "${secreted_pro[@]}") -A 1 "$proteome" > "${output_path}/${species}/${sample}/SignalP6/${sample}_SSP.fasta"
+        
+        sed -i 's/--//g' "${output_path}/${species}/${sample}/SignalP6/${sample}_SSP.fasta" 
+    else
+        echo "Output file $output_gff exists. Skipping SignalP command."
+    fi
+done
+
 
 #predict transmembrane domain
 for name in "${sample_no[@]}"; do
     mkdir -p "${output_path}/${species}/${sample}/TMHMM"
+    
     cat ${output_path}/${species}/${sample}/SignalP6/${sample}_SSP.fasta  | \
     ${tool_path}/tmhmm/decodeanhmm.Linux_x86_64 -f ${tool_path}/tmhmm/TMHMM2.0.options \
     -modelfile ${tool_path}/tmhmm/TMHMM2.0c.model > ${output_path}/${species}/${sample}/TMHMM/tmhmm.gff3
+    
     perl ${tool_path}/tmhmm/tmhmmformat.pl \
     ${output_path}/${species}/${sample}/TMHMM/tmhmm.gff3 > ${output_path}/${species}/${sample}/TMHMM/res.gff3
+    
     grep -E "Number of predicted TMHs:  0" ${output_path}/${species}/${sample}/TMHMM/res.gff3| sed 's/# />/g' > ${output_path}/${species}/${sample}/TMHMM/IDtmhmm.txt
+    
     cut -d ' ' -f1 ${output_path}/${species}/${sample}/TMHMM/IDtmhmm.txt > ${output_path}/${species}/${sample}/TMHMM/id.wotransmembrandomains.fastaxs
+    
     grep -Fwf ${output_path}/${species}/${sample}/TMHMM/id.wotransmembrandomains.fastaxs -A 1 "${output_path}/${species}/${sample}/SignalP6/${sample}_SSP.fasta" > "${output_path}/${species}/${sample}/TMHMM/${sample}_NOTM.fasta"
 done
 
