@@ -23,7 +23,7 @@ proteome=$(echo "${proteome_path}/${full_sp_name}_${sample_no}.proteins.fa")
 for name in "${sample_no[@]}"; do 
    mkdir -p "${output_path}/${species}/${sample}"
    mkdir -p "${output_path}/${species}/${sample}/SignalP6"
-   signalp6 --fastafile "${proteome}" \
+   signalp6 --fastafile $proteome \
            --output_dir "${output_path}/${species}/${sample}/SignalP6"  \
            --model_dir "${tool_path}/signalp-6-package/models" \
            --format none 
