@@ -17,7 +17,7 @@ sample=($(jq -r '.samples[]' config.json))
 species=$(jq -r '.species[]' config.json)
 full_sp_name=$(jq -r '.full_species_name[]' config.json)
 sample_no=("${sample[@]//[^0-9]/}")
-proteome=$(echo "${proteome_path}/${full_sp_name}_${name}.proteins.fa")
+proteome=$(echo "${proteome_path}/${full_sp_name}_${sample_no}.proteins.fa")
 
 # predict SSPs
 for name in "${sample_no[@]}"; do 
