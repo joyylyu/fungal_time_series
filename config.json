@@ -22,7 +22,7 @@
         "flat380165"
     ],
 
-    "proteome_path":"/data/zool-barralab/lina3034/fungi/funannotate/orthofinder/flat",
+    "data_path":"/data/zool-barralab/lina3034/fungi/funannotate/orthofinder",
     "tool_path":"/data/zool-barralab/scro4523/fungal_effector/tools",
     "output_path":"/data/zool-barralab/scro4523/fungal_effector/output"
 }

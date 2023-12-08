@@ -11,7 +11,7 @@
 
 # get path from config file
 tool_path=$(jq -r '.tool_path' config.json)
-proteome_path=$(jq -r '.proteome_path' config.json)
+data_path=$(jq -r '.data_path' config.json)
 output_path=$(jq -r '.output_path' config.json)
 sample=($(jq -r '.samples[]' config.json))
 species=$(jq -r '.species[]' config.json)
@@ -22,21 +22,21 @@ full_sp_name=$(jq -r '.full_species_name[]' config.json)
 for name in "${sample[@]}"; do 
     output_gff="${output_path}/${species}/${name}/SignalP6/output.gff3"
     sample_no=("${name[@]//[^0-9]/}")
-    proteome=$(echo "${proteome_path}/${full_sp_name}_${sample_no}.proteins.fa")s
+    proteome=$(echo "${data_path}/${species}/${full_sp_name}_${sample_no}.proteins.fa")
     
     # Check if output.gff3 file exists
     if [ ! -e "$output_gff" ]; then
         mkdir -p "${output_path}/${species}/${name}"
         mkdir -p "${output_path}/${species}/${name}/SignalP6"
         
-        signalp6 --fastafile "$proteome" \
+        signalp6 --fastafile $proteome \
                  --output_dir "${output_path}/${species}/${name}/SignalP6"  \
                  --model_dir "${tool_path}/signalp-6-package/models" \
                  --format none 
         
         secreted_pro=$(awk '!/^#/ {print $1}' "${output_path}/${species}/${name}/SignalP6/output.gff3")
         
-        grep -Fwf <(printf "%s\n" "${secreted_pro[@]}") -A 1 "$proteome" > "${output_path}/${species}/${name}/SignalP6/${name}_SSP.fasta"
+        grep -Fwf <(printf "%s\n" "${secreted_pro[@]}") -A 1 $proteome > "${output_path}/${species}/${name}/SignalP6/${name}_SSP.fasta"
         
         sed -i 's/--//g' "${output_path}/${species}/${name}/SignalP6/${name}_SSP.fasta" 
     else
