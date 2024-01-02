@@ -19,6 +19,7 @@ for name in "${sample[@]}"; do
     done
 done
 
+# find out gene count for these orthogroups from each sample
 ortho_count=$(find "$data_path"/"$species"_ortho -type d -name "Results_*" -exec echo {}/Orthogroups/Orthogroups.GeneCount.tsv \;)
 mkdir -p "$output_path"/"$species"/eff_ortho 
 for pattern in "${orthogroup[@]}"; do
