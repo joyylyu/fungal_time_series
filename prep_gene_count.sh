@@ -5,8 +5,7 @@ sample=($(jq -r '.samples[]' config.json))
 species=$(jq -r '.species[]' config.json)
 full_sp_name=$(jq -r '.full_species_name[]' config.json)
 data_path=$(jq -r '.data_path' config.json)
-ortho_table="$data_path"/"$species"_ortho/Results_*/Orthogroups/Orthogroups.tsv
-
+ortho_table=$(find "$data_path"/"$species"_ortho -type d -name "Results_*" -exec echo {}/Orthogroups/Orthogroups.tsv \;)
 
 # select putative effectors from orthogroup count table
 orthogroup=()
@@ -20,7 +19,7 @@ for name in "${sample[@]}"; do
     done
 done
 
-ortho_count="$data_path"/"$species"_ortho/Results_*/Orthogroups/Orthogroups.GeneCount.tsv
+ortho_count=$(find "$data_path"/"$species"_ortho -type d -name "Results_*" -exec echo {}/Orthogroups/Orthogroups.GeneCount.tsv \;)
 mkdir "$output_path"/"$species"/eff_ortho 
 awk -v orthogroup="${orthogroup[*]}" '{for (i=1; i<=NF; i++) if ($i == orthogroup) print}' "$ortho_count" > \
 "$output_path"/"$species"/eff_ortho/"$species"_EFF_count.tsv
