@@ -12,3 +12,4 @@
 # select effectors from orthogroup.genecount table 
 ./prep_gene_count.sh
 
+# generate gain and loss lists and core lists
