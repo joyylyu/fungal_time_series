@@ -1,12 +1,7 @@
 {
-    "species":
-    [
-        "flat"
-    ],
-    "full_species_name":
-    [
-        "*usarium_lateritium"
-    ],
+    "species": "flat",
+    "full_species_name": "*usarium_lateritium",
+    
     "samples":
     [
         "flat126338",
